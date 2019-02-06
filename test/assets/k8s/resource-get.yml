@@ -1,0 +1,6 @@
+apiVersion: fireblink.com/v1
+kind: GetResource
+metadata:
+  name: get
+spec:
+  data: 1

@@ -1,0 +1,24 @@
+version: '3'
+services:
+  plugin:
+    build: .
+    privileged: true
+    network_mode: host
+    environment:
+      # if 1 - kind cluster will not be generated and any existing one will not be removed before running tests
+      KIND_USE_EXISTING_CLUSTER: 0
+
+      # if 1 - generated kind cluster will not be removed after tests execution
+      KIND_KEEP_GENERATED_CLUSTER: 0
+
+      # Specify custom kubeconfig location
+      #KUBECONFIG: /kubeconfigs/config
+
+      # Copy generated kind kube config to specified path
+      #KIND_COPY_KUBECONFIG_TO: /kubeconfigs/kind
+    volumes:
+      - ./coverage:/usr/app/coverage
+      - ./.nyc_output:/usr/app/.nyc_output
+      - ./mochawesome-report:/usr/app/mochawesome-report
+      - /var/run/docker.sock:/var/run/docker.sock
+      #- ./.kube:/kubeconfigs

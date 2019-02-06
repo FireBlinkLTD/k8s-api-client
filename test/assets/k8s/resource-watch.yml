@@ -1,0 +1,6 @@
+apiVersion: fireblink.com/v1
+kind: WatchResource
+metadata:
+  name: watch
+spec:
+  data: 1

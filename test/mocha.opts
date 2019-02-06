@@ -1,0 +1,6 @@
+--require source-map-support/register
+--timeout 120000
+--ui mocha-typescript
+--bail
+dist/test/unit/**/*.js
+--reporter mochawesome

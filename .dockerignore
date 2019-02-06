@@ -1,0 +1,13 @@
+*
+# source code
+!./src
+!./test
+!./index.ts
+
+# module configuration files
+!./package.json
+!./yarn.lock
+!./tsconfig.json
+
+# docker specific files
+!./docker-run-tests.sh
