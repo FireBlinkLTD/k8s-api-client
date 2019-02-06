@@ -37,7 +37,7 @@ const resource = await processor.get(
 
 Sometimes you may need to get all stored records and don't mess with pagination on your own. To do that use following helper function:
 
-```javascript
+```typescript
 
 const processor = new GetRequestProcessor();
 
@@ -59,7 +59,7 @@ console.log(response.items);
 
 Another common usecase is to have a listener to track K8s resource changes.
 
-```javascript
+```typescript
 import {WatchRequestProcessor} from '@fireblink/k8s-api-client';
 
 const processor = new WatchRequestProcessor();
@@ -70,22 +70,22 @@ await processor.watch(
         // called when API call returns 410 code - GONE
         // when such happens you generally need to refetch the list of records and start again 
         // with the resourceVersion returned (see `getAll` method above)
-        gone: function() {
+        gone: async () => {
 
         },
 
         // called when object is added
-        added: function(obj) {
+        added: async (obj: any) => {
 
         },
 
         // called when object get changed
-        modified: function(obj) {
+        modified: async (obj: any) => {
 
         },
 
         // called when object get removed
-        deleted: function(obj) {
+        deleted: async (obj: any) => {
 
         }
     },
