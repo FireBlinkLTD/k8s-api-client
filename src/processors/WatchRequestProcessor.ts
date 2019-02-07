@@ -3,6 +3,8 @@ import {JsonStreamReader} from 'json-streaming-reader';
 
 import { BaseRequestProcessor } from './BaseRequestProcessor';
 
+import * as Debug from 'debug';
+const debug = Debug('@fireblink/k8s-api-client')
 
 export type WatchHandler = (obj: any) => Promise<void>;
 export type GoneHandler = () => Promise<void>;
@@ -36,6 +38,8 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
      * @param resourceVersion
      */
     async watch(path: string, handlers: IWatchHandlers, resourceVersion?: string): Promise<void> {        
+        debug(`WATCH request processor: start watching path: ${path} and resourceVersion: ${resourceVersion}`);
+        
         const kc = await this.loadConfig();
 
         const options: request.Options = {
@@ -89,7 +93,7 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
                     if (record.type) {
                         const type: string = record.type.toLowerCase();
                         if (type === 'added' || type === 'modified' || type === 'deleted') {
-                            const handler: WatchHandler = handlers[type];
+                            const handler: WatchHandler | undefined = handlers[type];
                             if (handler) {
                                 emit(handler);
                             }

@@ -5,13 +5,16 @@ import { homedir } from 'os';
 import { join } from 'path';
 import { safeLoad } from 'js-yaml';
 
+import * as Debug from 'debug';
+const debug = Debug('@fireblink/k8s-api-client')
+
 export class KubeConfig {
     public static SA_ROOT = '/var/run/secrets/kubernetes.io/serviceaccount';
     public static SA_CA_PATH = KubeConfig.SA_ROOT + '/ca.crt';
     public static SA_TOKEN_PATH = KubeConfig.SA_ROOT + '/token';
 
-    public user: IKubeConfigUser;
-    public cluster: IKubeConfigCluster;
+    public user!: IKubeConfigUser;
+    public cluster!: IKubeConfigCluster;
 
     /**
      * Load configuration from all posible sources
@@ -19,6 +22,7 @@ export class KubeConfig {
     public async load(): Promise<void> {
         // load based on KUBECONFIG env var value
         if (process.env.KUBECONFIG && process.env.KUBECONFIG.length > 0) {
+            debug(`Loading kube configuration based on KUBECONFIG evn var: ${process.env.KUBECONFIG}`);
             await this.loadFromFile(process.env.KUBECONFIG);
 
             return;
@@ -28,6 +32,7 @@ export class KubeConfig {
         const defaultKubeConfig = join(homedir(), '.kube', 'config');
         const defaultKubeConfigExists = await promisify(exists)(defaultKubeConfig);
         if (defaultKubeConfigExists) {
+            debug(`Loading kube configuration from default location: ${defaultKubeConfig}`);
             this.loadFromFile(defaultKubeConfig);
 
             return;
@@ -36,6 +41,7 @@ export class KubeConfig {
         // load on pod (from serviceaccount folder)
         const tokenExists = await promisify(exists)(KubeConfig.SA_TOKEN_PATH);
         if (tokenExists) {
+            debug(`Loading kube configuration from service account.`);
             this.loadFromServiceAccountToken();
 
             return;
@@ -57,12 +63,15 @@ export class KubeConfig {
         }
 
         const token = await promisify(readFile)(KubeConfig.SA_TOKEN_PATH, 'utf8');
+        debug(`token: ${token}`);
+
         this.user = {
             name: '',
             user: {
                 token,
             },
         };
+        debug(`user: ${JSON.stringify(this.user)}`);
 
         this.cluster = {
             name: '',
@@ -70,7 +79,8 @@ export class KubeConfig {
                 server: `${scheme}://${host}:${port}`,
                 'certificate-authority': KubeConfig.SA_CA_PATH,
             },
-        };
+        };        
+        debug(`cluster: ${JSON.stringify(this.user)}`);
     }
 
     /**
@@ -79,6 +89,8 @@ export class KubeConfig {
      * @param currentContext override `current-context` value with custom one
      */
     public async loadFromFile(path: string, currentContext?: string): Promise<void> {
+        debug(`Loading kube configuration from file: ${path}`); 
+
         const yaml = await promisify(readFile)(path, 'utf8');
         const obj = safeLoad(yaml);
 
@@ -89,6 +101,7 @@ export class KubeConfig {
         }
 
         currentContext = currentContext || obj['current-context'];
+        debug(`current-context: ${currentContext}`);
         if (!currentContext) {
             throw new Error(`Unable to load config at path: ${path}; no current-context field specified.`);
         }
@@ -111,6 +124,7 @@ export class KubeConfig {
         }
 
         this.user = obj.users.find((u: IKubeConfigUser) => u.name === context.context.user);
+        debug(`user: ${JSON.stringify(this.user)}`);
         if (!this.user) {
             throw new Error(
                 `Unable to load config at path: ${path}; no matching user for name: ${context.context.user}.`,
@@ -118,6 +132,7 @@ export class KubeConfig {
         }
 
         this.cluster = obj.clusters.find((c: IKubeConfigCluster) => c.name === context.context.cluster);        
+        debug(`cluster: ${JSON.stringify(this.user)}`);
         if (!this.cluster) {
             throw new Error(
                 `Unable to load config at path: ${path}; no matching cluster for name: ${context.context.cluster}.`,

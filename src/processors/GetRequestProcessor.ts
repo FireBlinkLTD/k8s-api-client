@@ -2,6 +2,8 @@ import * as request from 'request';
 
 import { BaseRequestProcessor } from './BaseRequestProcessor';
 
+import * as Debug from 'debug';
+const debug = Debug('@fireblink/k8s-api-client')
 
 export class GetRequestProcessor extends BaseRequestProcessor {
     /**
@@ -11,8 +13,9 @@ export class GetRequestProcessor extends BaseRequestProcessor {
      */
     async get(
         path: string, 
-        queryParameters?: { [key: string]: number | string }
+        queryParameters?: { [key: string]: number | string | undefined }
     ): Promise<any> {
+        debug(`GET request processor: making GET request for path: ${path} and queryParameters: ${queryParameters}`);        
         const kc = await this.loadConfig();
         
         const options: request.Options = {
@@ -50,9 +53,10 @@ export class GetRequestProcessor extends BaseRequestProcessor {
         queryParameters?: { 
             limit?: number | string,
             continue?: string,
-            [key: string]: number | string 
+            [key: string]: number | string | undefined
         }
     ): Promise<{ resourceVersion: string; items: any[] }> {
+        debug(`GET request processor: getting all items for path: ${path} and queryParameters: ${queryParameters}`);
         if (!queryParameters) {
             queryParameters = {};
         }
@@ -66,7 +70,7 @@ export class GetRequestProcessor extends BaseRequestProcessor {
             items: [],
         };
 
-        let continueValue: string;
+        let continueValue: string | undefined;
 
         let response;
         do {

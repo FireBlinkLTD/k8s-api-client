@@ -5,6 +5,8 @@ services:
     privileged: true
     network_mode: host
     environment:
+      #DEBUG: '@fireblink/k8s-api-client'
+      
       # if 1 - kind cluster will not be generated and any existing one will not be removed before running tests
       KIND_USE_EXISTING_CLUSTER: 0
 
