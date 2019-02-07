@@ -33,7 +33,7 @@ export class KubeConfig {
         const defaultKubeConfigExists = await promisify(exists)(defaultKubeConfig);
         if (defaultKubeConfigExists) {
             debug(`Loading kube configuration from default location: ${defaultKubeConfig}`);
-            this.loadFromFile(defaultKubeConfig);
+            await this.loadFromFile(defaultKubeConfig);
 
             return;
         }
@@ -42,7 +42,7 @@ export class KubeConfig {
         const tokenExists = await promisify(exists)(KubeConfig.SA_TOKEN_PATH);
         if (tokenExists) {
             debug(`Loading kube configuration from service account.`);
-            this.loadFromServiceAccountToken();
+            await this.loadFromServiceAccountToken();
 
             return;
         }
