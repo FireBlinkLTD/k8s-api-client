@@ -1,6 +1,6 @@
-import { promisify } from "util";
-import { readFile } from "fs";
-import { safeLoad } from "js-yaml";
+import { promisify } from 'util';
+import { readFile } from 'fs';
+import { safeLoad } from 'js-yaml';
 import { exec } from 'child_process';
 
 export class BaseTestSuite {
@@ -28,6 +28,7 @@ export class BaseTestSuite {
      */
     protected async readYamlFile(path: string): Promise<any> {
         const content = await promisify(readFile)(path, 'utf8');
+        
         return safeLoad(content);
     }
 }

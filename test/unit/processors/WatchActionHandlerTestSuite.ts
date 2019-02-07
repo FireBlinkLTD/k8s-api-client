@@ -91,6 +91,6 @@ class WatchActionHandlerTestSuite extends BaseTestSuite {
                 },
                 '-1'
             )
-        ).to.be.rejectedWith('resourceVersion: Invalid value: "-1": strconv.ParseUint: parsing "-1": invalid syntax')        
+        ).to.be.rejectedWith('resourceVersion: Invalid value: "-1": strconv.ParseUint: parsing "-1": invalid syntax');        
     }
 }

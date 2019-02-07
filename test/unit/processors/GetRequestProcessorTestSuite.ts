@@ -31,7 +31,7 @@ class GetRequestProcessorTestSuite extends BaseTestSuite {
         const namespace = 'default';
         const result = await processor.get(
             `/apis/${resource.apiVersion}/namespaces/${namespace}/gets/${resource.metadata.name}`        
-        )
+        );
 
         assert.strictEqual(result.apiVersion, resource.apiVersion);
         assert.strictEqual(result.kind, resource.kind);
@@ -59,7 +59,7 @@ class GetRequestProcessorTestSuite extends BaseTestSuite {
             {
                 limit: 1
             }  
-        )
+        );
 
         assert(result.resourceVersion);
         assert.strictEqual(result.items.length, 2);

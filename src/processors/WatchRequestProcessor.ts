@@ -99,14 +99,14 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
 
                 jsonStream.on('finish', res);
 
-                stream.on('request', request => {
-                    this.activeRequest = request;
+                stream.on('request', req => {
+                    this.activeRequest = req;
                 });
 
                 let response: request.Response;
                 stream.on('response', resp => {
                     response = resp;
-                })
+                });
 
                 stream.on('error', err => {
                     if (handlers.gone && (response && response.statusCode && response.statusCode === 410)) {
