@@ -3,7 +3,7 @@ import * as request from 'request';
 import { BaseRequestProcessor } from './BaseRequestProcessor';
 
 import * as Debug from 'debug';
-const debug = Debug('@fireblink/k8s-api-client')
+const debug = Debug('@fireblink/k8s-api-client');
 
 export class GetRequestProcessor extends BaseRequestProcessor {
     /**

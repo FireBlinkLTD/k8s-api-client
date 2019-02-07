@@ -6,7 +6,7 @@ import { join } from 'path';
 import { safeLoad } from 'js-yaml';
 
 import * as Debug from 'debug';
-const debug = Debug('@fireblink/k8s-api-client')
+const debug = Debug('@fireblink/k8s-api-client');
 
 export class KubeConfig {
     public static SA_ROOT = '/var/run/secrets/kubernetes.io/serviceaccount';

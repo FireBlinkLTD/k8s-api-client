@@ -4,7 +4,7 @@ import { readFile } from 'fs';
 import * as request from 'request';
 
 import * as Debug from 'debug';
-const debug = Debug('@fireblink/k8s-api-client')
+const debug = Debug('@fireblink/k8s-api-client');
 
 export abstract class BaseRequestProcessor {
     private kubeConfig!: KubeConfig;    
@@ -24,6 +24,7 @@ export abstract class BaseRequestProcessor {
     protected async loadConfig(): Promise<KubeConfig> {
         if (this.kubeConfig) {
             debug(`request processor: returning cached config`);
+            
             return this.kubeConfig;
         }
 
@@ -63,7 +64,7 @@ export abstract class BaseRequestProcessor {
 
         if (kc.user.user.token) {
             if (!options.headers) {
-                options.headers = {}
+                options.headers = {};
             }
             options.headers.Authorization = 'Bearer ' + kc.user.user.token;
         }
