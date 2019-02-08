@@ -26,10 +26,9 @@ yarn add @fireblink/k8s-api-client
 Make GET request:
 
 ```javascript
-import {GetRequestProcessor} from '@fireblink/k8s-api-client';
+import {RESTRequestProcessor} from '@fireblink/k8s-api-client';
 
-const processor = new GetRequestProcessor();
-
+const processor = new RESTRequestProcessor();
 const resource = await processor.get(
     '/apis/fireblink.com/v1/namespaces/default/customresources/resource-name'
 );
@@ -38,9 +37,9 @@ const resource = await processor.get(
 Sometimes you may need to get all stored records and don't mess with pagination on your own. To do that use following helper function:
 
 ```typescript
+import {RESTRequestProcessor} from '@fireblink/k8s-api-client';
 
-const processor = new GetRequestProcessor();
-
+const processor = new RESTRequestProcessor();
 const response = await processor.getAll(
     '/apis/fireblink.com/v1/namespaces/default/customresources',
     // optionaly provide query parameters to pass with custom limit value, default one is 100

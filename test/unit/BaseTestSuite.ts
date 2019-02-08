@@ -4,31 +4,33 @@ import { safeLoad } from 'js-yaml';
 import { exec } from 'child_process';
 
 export class BaseTestSuite {
-
     /**
      * Execute command
-     * @param path 
+     * @param path
      */
-    protected async exec(cmd: string): Promise<void> {
-        await new Promise<void>((res, rej) =>
-            exec(cmd, err => {
+    protected async exec(cmd: string): Promise<{ stdout: string; stderr: string }> {
+        return await new Promise<{ stdout: string; stderr: string }>((res, rej) =>
+            exec(cmd, (err, stdout, stderr) => {
                 /* istanbul ignore next */
                 if (err) {
                     return rej(err);
                 }
 
-                res();
+                res({
+                    stdout,
+                    stderr,
+                });
             }),
         );
     }
-    
+
     /**
      * Read yaml file
-     * @param path 
+     * @param path
      */
     protected async readYamlFile(path: string): Promise<any> {
         const content = await promisify(readFile)(path, 'utf8');
-        
+
         return safeLoad(content);
     }
 }

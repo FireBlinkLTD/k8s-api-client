@@ -21,6 +21,7 @@ export class KubeConfig {
      */
     public async load(): Promise<void> {
         // load based on KUBECONFIG env var value
+        /* istanbul ignore else */
         if (process.env.KUBECONFIG && process.env.KUBECONFIG.length > 0) {
             debug(`Loading kube configuration based on KUBECONFIG evn var: ${process.env.KUBECONFIG}`);
             await this.loadFromFile(process.env.KUBECONFIG);
@@ -31,6 +32,7 @@ export class KubeConfig {
         // load based on default config file
         const defaultKubeConfig = join(homedir(), '.kube', 'config');
         const defaultKubeConfigExists = await promisify(exists)(defaultKubeConfig);
+        /* istanbul ignore else */
         if (defaultKubeConfigExists) {
             debug(`Loading kube configuration from default location: ${defaultKubeConfig}`);
             await this.loadFromFile(defaultKubeConfig);
@@ -40,6 +42,7 @@ export class KubeConfig {
 
         // load on pod (from serviceaccount folder)
         const tokenExists = await promisify(exists)(KubeConfig.SA_TOKEN_PATH);
+        /* istanbul ignore else */
         if (tokenExists) {
             debug(`Loading kube configuration from service account.`);
             await this.loadFromServiceAccountToken();
@@ -79,7 +82,7 @@ export class KubeConfig {
                 server: `${scheme}://${host}:${port}`,
                 'certificate-authority': KubeConfig.SA_CA_PATH,
             },
-        };        
+        };
         debug(`cluster: ${JSON.stringify(this.user)}`);
     }
 
@@ -89,7 +92,7 @@ export class KubeConfig {
      * @param currentContext override `current-context` value with custom one
      */
     public async loadFromFile(path: string, currentContext?: string): Promise<void> {
-        debug(`Loading kube configuration from file: ${path}`); 
+        debug(`Loading kube configuration from file: ${path}`);
 
         const yaml = await promisify(readFile)(path, 'utf8');
         const obj = safeLoad(yaml);
@@ -131,7 +134,7 @@ export class KubeConfig {
             );
         }
 
-        this.cluster = obj.clusters.find((c: IKubeConfigCluster) => c.name === context.context.cluster);        
+        this.cluster = obj.clusters.find((c: IKubeConfigCluster) => c.name === context.context.cluster);
         debug(`cluster: ${JSON.stringify(this.user)}`);
         if (!this.cluster) {
             throw new Error(

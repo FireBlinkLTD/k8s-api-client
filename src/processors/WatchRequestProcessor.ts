@@ -1,5 +1,5 @@
 import * as request from 'request';
-import {JsonStreamReader} from 'json-streaming-reader';
+import { JsonStreamReader } from 'json-streaming-reader';
 
 import { BaseRequestProcessor } from './BaseRequestProcessor';
 
@@ -12,7 +12,7 @@ export type GoneHandler = () => Promise<void>;
 export interface IWatchHandlers {
     gone?: GoneHandler;
     added?: WatchHandler;
-    modified?: WatchHandler;    
+    modified?: WatchHandler;
     deleted?: WatchHandler;
 }
 
@@ -37,9 +37,9 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
      * @param handlers
      * @param resourceVersion
      */
-    async watch(path: string, handlers: IWatchHandlers, resourceVersion?: string): Promise<void> {        
+    async watch(path: string, handlers: IWatchHandlers, resourceVersion?: string): Promise<void> {
         debug(`WATCH request processor: start watching path: ${path} and resourceVersion: ${resourceVersion}`);
-        
+
         const kc = await this.loadConfig();
 
         const options: request.Options = {
@@ -48,14 +48,14 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
             headers: {},
             qs: {},
         };
-        
+
         await this.updateRequestOptions(options);
 
         options.qs.watch = 'true';
         if (resourceVersion) {
             options.qs.resourceVersion = resourceVersion;
         }
-        
+
         this.activeRequest = undefined;
         try {
             await new Promise((res, rej) => {
@@ -65,7 +65,7 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
                 const jsonStream = new JsonStreamReader();
                 stream.pipe(jsonStream);
 
-                jsonStream.on('data', (data: any) => {       
+                jsonStream.on('data', (data: any) => {
                     const record = data.record;
 
                     const emit = (handler: WatchHandler): void => {
@@ -97,7 +97,7 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
                             if (handler) {
                                 emit(handler);
                             }
-                        }            
+                        }
                     }
                 });
 
@@ -131,6 +131,6 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
             setTimeout(() => {
                 this.watch(path, handlers, resourceVersion);
             }, 0);
-        }        
+        }
     }
 }

@@ -19,6 +19,9 @@ if [[ -z "$KUBECONFIG" ]]; then
     export KUBECONFIG="$(kind get kubeconfig-path)"
 fi
 
+# copy kubeconfig into default location for test purposes
+cp $KUBECONFIG ~/.kube/config
+
 if [[ -n "$KIND_COPY_KUBECONFIG_TO" ]]; then
     cp $KUBECONFIG $KIND_COPY_KUBECONFIG_TO
 fi
