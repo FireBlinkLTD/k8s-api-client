@@ -10,7 +10,27 @@ jobs:
     working_directory: ~/k8s-api-client
     machine: true
     steps:
-      - checkout
+      - run:
+          name: Install nvm
+          command: |
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+
+            export NVM_DIR="$HOME/.nvm"
+            echo 'export NVM_DIR=$HOME/.nvm' >> $BASH_ENV
+            echo 'source $NVM_DIR/nvm.sh' >> $BASH_ENV
+
+      - run:  
+          name: Install Node.js
+          command: |    
+            export NVM_DIR="$HOME/.nvm"
+            echo 'export NVM_DIR=$HOME/.nvm' >> $BASH_ENV
+            echo 'source $NVM_DIR/nvm.sh' >> $BASH_ENV
+
+            nvm install --lts
+            nvm alias default 'lts/*'
+
+            # Install Yarn package manager
+            npm install --global yarn
 
       - run:
           name: Install Docker Compose
@@ -19,22 +39,11 @@ jobs:
             chmod +x ~/docker-compose
             sudo mv ~/docker-compose /usr/local/bin/docker-compose
 
-      - run:  
-          name: Install Node.js
-          command: |
-            bash .circleci/load-nvm.sh
+      - checkout
 
-            nvm install v10.15.0
-            nvm alias default v10.15.0
-
-            # Install Yarn package manager
-            sudo npm install --global yarn
-    
       - run: 
           name: yarn install && yarn build
           command: |
-            bash .circleci/load-nvm.sh
-
             yarn install
             yarn build
 
@@ -46,8 +55,6 @@ jobs:
       - run: 
           name: run tests and generate coverage report
           command: |
-            bash .circleci/load-nvm.sh
-
             yarn docker:test
             
             # generate coverage report
@@ -94,8 +101,10 @@ workflows:
             tags:
               only: /^[0-9]+\.[0-9]+\.[0-9]+/
             branches:
+              # as execution takes really long time we should not enable it for all branches and PRs
               only: 
                 - master
+                - develop                
 
       - deploy:
           requires:
