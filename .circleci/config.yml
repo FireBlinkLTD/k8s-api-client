@@ -66,6 +66,10 @@ jobs:
 
       # store artifacts
       - store_artifacts:
+          path: ./coverage.lcov
+
+      # store artifacts
+      - store_artifacts:
           path: ./coverage
 
       # store artifacts
