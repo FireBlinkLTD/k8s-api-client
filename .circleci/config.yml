@@ -51,12 +51,7 @@ jobs:
           name: yarn install && yarn build
           command: |
             yarn install
-            yarn build
-
-      # persist build
-      - persist_to_workspace:
-          root: ~/repo
-          paths: .
+            yarn build     
 
       - run: 
           name: run tests and generate coverage report
@@ -67,13 +62,7 @@ jobs:
             ./node_modules/.bin/nyc report --reporter=text-lcov > ./coverage.lcov
       
       # send test coverage
-      - run: bash <(curl -s https://codecov.io/bash) -f ./coverage.lcov
-
-      # test for outdated packages
-      #- run: yarn outdated
-
-      # lint code
-      #- run: yarn lint
+      - run: bash <(curl -s https://codecov.io/bash) -f ./coverage.lcov      
 
       # store artifacts
       - store_artifacts:
