@@ -30,28 +30,28 @@ jobs:
             # Install Yarn package manager
             sudo npm install --global yarn
     
-      # install all app dependencies and build it
       - run: 
-        command: |
-          bash .circleci/load-nvm.sh
+          name: yarn install && yarn build
+          command: |
+            bash .circleci/load-nvm.sh
 
-          yarn install
-          yarn build
+            yarn install
+            yarn build
 
       # persist build
       - persist_to_workspace:
           root: ~/repo
           paths: .
 
-      # run tests and generate coverage report
       - run: 
-        command: |
-          bash .circleci/load-nvm.sh
+          name: run tests and generate coverage report
+          command: |
+            bash .circleci/load-nvm.sh
 
-          yarn docker:test
-          
-          # generate coverage report
-          ./node_modules/.bin/nyc report --reporter=text-lcov > ./coverage.lcov
+            yarn docker:test
+            
+            # generate coverage report
+            ./node_modules/.bin/nyc report --reporter=text-lcov > ./coverage.lcov
       
       # send test coverage
       - run: bash <(curl -s https://codecov.io/bash) -f ./coverage.lcov
