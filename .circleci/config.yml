@@ -1,0 +1,101 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:8.12
+
+jobs:
+  build:
+    working_directory: ~/repo
+    machine: true
+    steps:
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+
+      - run:  
+          name: Install Node.js
+          command: |
+            NODEJS_VERSION=10.15.0
+            curl -fsSLO --compressed "https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.xz"
+            tar -xJvf node-v${NODEJS_VERSION}-linux-x64.tar.xz -C /tmp
+            sudo cp -R /tmp/node-v${NODEJS_VERSION}-linux-x64/* /usr/local
+
+            # Install Yarn package manager
+            sudo npm install --global yarn
+
+      #- setup_remote_docker
+      - checkout
+
+      # install all app dependencies
+      - run: yarn install
+
+      # build it
+      - run: yarn build
+
+      # persist build
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+
+      # run tests and generate coverage report
+      - run: yarn docker:test
+
+      # generate coverage report
+      - run: ./node_modules/.bin/nyc report --reporter=text-lcov > ./coverage.lcov
+
+      # send test coverage
+      - run: bash <(curl -s https://codecov.io/bash) -f ./coverage.lcov
+
+      # test for outdated packages
+      #- run: yarn outdated
+
+      # lint code
+      #- run: yarn lint
+
+      # store artifacts
+      - store_artifacts:
+          path: ./coverage
+
+      # store artifacts
+      - store_artifacts:
+          path: ./mochawesome-report
+
+  deploy:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
+
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+
+      - run:
+          name: Publish package
+          command: npm publish --access public
+
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^[0-9]+\.[0-9]+\.[0-9]+/
+            branches:
+              ignore: /.*/
+              
+      - deploy:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^[0-9]+\.[0-9]+\.[0-9]+/
+            branches:
+              ignore: /.*/
