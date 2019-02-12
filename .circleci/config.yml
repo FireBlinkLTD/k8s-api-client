@@ -22,8 +22,7 @@ jobs:
       - run:  
           name: Install Node.js
           command: |
-            export NVM_DIR="/opt/circleci/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            bash .circleci/load-nvm.sh
 
             nvm install v10.15.0
             nvm alias default v10.15.0
@@ -31,11 +30,13 @@ jobs:
             # Install Yarn package manager
             sudo npm install --global yarn
     
-      # install all app dependencies
-      - run: yarn install
+      # install all app dependencies and build it
+      - run: 
+        command: |
+          bash .circleci/load-nvm.sh
 
-      # build it
-      - run: yarn build
+          yarn install
+          yarn build
 
       # persist build
       - persist_to_workspace:
@@ -43,11 +44,15 @@ jobs:
           paths: .
 
       # run tests and generate coverage report
-      - run: yarn docker:test
+      - run: 
+        command: |
+          bash .circleci/load-nvm.sh
 
-      # generate coverage report
-      - run: ./node_modules/.bin/nyc report --reporter=text-lcov > ./coverage.lcov
-
+          yarn docker:test
+          
+          # generate coverage report
+          ./node_modules/.bin/nyc report --reporter=text-lcov > ./coverage.lcov
+      
       # send test coverage
       - run: bash <(curl -s https://codecov.io/bash) -f ./coverage.lcov
 
