@@ -35,6 +35,10 @@ jobs:
       # build it
       - run: yarn build
 
+      # persist build
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
 
   build:
     working_directory: ~/k8s-api-client
