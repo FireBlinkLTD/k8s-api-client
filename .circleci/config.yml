@@ -22,10 +22,11 @@ jobs:
       - run:  
           name: Install Node.js
           command: |
-            NODEJS_VERSION=10.15.0
-            curl -fsSLO --compressed "https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.xz"
-            tar -xJvf node-v${NODEJS_VERSION}-linux-x64.tar.xz -C /tmp
-            sudo cp -R /tmp/node-v${NODEJS_VERSION}-linux-x64/* /usr/local
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            nvm install v10.15.0
+            nvm alias default v10.15.0
 
             # Install Yarn package manager
             sudo npm install --global yarn
