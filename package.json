@@ -1,6 +1,6 @@
 {
   "name": "@fireblink/k8s-api-client",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
