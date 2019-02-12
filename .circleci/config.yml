@@ -7,7 +7,7 @@ defaults: &defaults
 
 jobs:
   build:
-    working_directory: ~/repo
+    #working_directory: ~/repo
     machine: true
     steps:
       - run:
