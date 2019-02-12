@@ -1,3 +1,3 @@
 export * from './BaseRequestProcessor';
-export * from './RESTRequestProcessor';
+export * from './APIRequestProcessor';
 export * from './WatchRequestProcessor';

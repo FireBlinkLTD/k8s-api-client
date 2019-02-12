@@ -19,8 +19,9 @@ services:
       # Copy generated kind kube config to specified path
       #KIND_COPY_KUBECONFIG_TO: /kubeconfigs/kind
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - ./coverage:/usr/app/coverage
       - ./.nyc_output:/usr/app/.nyc_output
       - ./mochawesome-report:/usr/app/mochawesome-report
-      - /var/run/docker.sock:/var/run/docker.sock
+      
       #- ./.kube:/kubeconfigs

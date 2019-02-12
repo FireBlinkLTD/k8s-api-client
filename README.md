@@ -21,14 +21,14 @@ yarn add @fireblink/k8s-api-client
 
 ## Usage
 
-### Get
+### Make GET request(s)
 
 Make GET request:
 
-```javascript
-import {RESTRequestProcessor} from '@fireblink/k8s-api-client';
+```typescript
+import {APIRequestProcessor} from '@fireblink/k8s-api-client';
 
-const processor = new RESTRequestProcessor();
+const processor = new APIRequestProcessor();
 const resource = await processor.get(
     '/apis/fireblink.com/v1/namespaces/default/customresources/resource-name'
 );
@@ -37,9 +37,9 @@ const resource = await processor.get(
 Sometimes you may need to get all stored records and don't mess with pagination on your own. To do that use following helper function:
 
 ```typescript
-import {RESTRequestProcessor} from '@fireblink/k8s-api-client';
+import {APIRequestProcessor} from '@fireblink/k8s-api-client';
 
-const processor = new RESTRequestProcessor();
+const processor = new APIRequestProcessor();
 const response = await processor.getAll(
     '/apis/fireblink.com/v1/namespaces/default/customresources',
     // optionaly provide query parameters to pass with custom limit value, default one is 100
@@ -54,7 +54,101 @@ console.log(response.items);
 // and resourceVersion that might be handy to be used with "watch" action (see below)
 ```
 
-### Watch
+## Make POST request
+
+```typescript
+import {APIRequestProcessor} from '@fireblink/k8s-api-client';
+
+const processor = new APIRequestProcessor();
+const resource = await processor.post(
+    '/apis/fireblink.com/v1/namespaces/default/customresources',
+    // JSON request body:
+    {
+        apiVersion: 'fireblink.com/v1'
+        kind: 'FTPO'
+        metadata: {
+            name: 'test'
+        }
+    },
+     // optional query parameters:
+    {}
+);
+```
+
+## Make PUT request
+
+```typescript
+import {APIRequestProcessor} from '@fireblink/k8s-api-client';
+
+const processor = new APIRequestProcessor();
+const resource = await processor.put(
+    '/apis/fireblink.com/v1/namespaces/default/customresources/test',
+    // JSON request body:
+    {
+        apiVersion: 'fireblink.com/v1'
+        kind: 'FTPO'
+        metadata: {
+            resourceVersion: 1, // <- this is important for update operation
+            name: 'test'
+        }
+    },
+     // optional query parameters:
+    {}
+);
+```
+
+## Make DELETE request
+
+```typescript
+import {APIRequestProcessor} from '@fireblink/k8s-api-client';
+
+const processor = new APIRequestProcessor();
+const resource = await processor.delete(
+    '/apis/fireblink.com/v1/namespaces/default/customresources/test'    
+);
+```
+
+## Make PATCH request(s)
+
+### JSON Merge
+
+The simpliest solution on how you may want to change existing resource. 
+Please refer to [RFC 7386](https://tools.ietf.org/html/rfc7386) for more information on how merging is working.
+
+```typescript
+import {APIRequestProcessor} from '@fireblink/k8s-api-client';
+
+const processor = new APIRequestProcessor();
+const resource = await processor.merge(
+    '/apis/fireblink.com/v1/namespaces/default/customresources/test',
+    {
+        spec: {
+            newField: 'yes',
+            removeOld: null
+        }   
+    }
+);
+```
+
+### JSON Patch
+
+This is a more advanced version of how existing resources can be updated. 
+Please refer to [RFC 6902](https://tools.ietf.org/html/rfc6902) for more information on how patching is working.
+
+```typescript
+import {APIRequestProcessor} from '@fireblink/k8s-api-client';
+
+const processor = new APIRequestProcessor();
+const resource = await processor.merge(
+    '/apis/fireblink.com/v1/namespaces/default/customresources/test',
+    [
+        { op: 'add', path: '/spec/newItem', value: 'yes' },
+        { op: 'remove', path: '/spec/removeOld' }
+    ]
+);
+```
+
+## Watch
 
 Another common usecase is to have a listener to track K8s resource changes.
 

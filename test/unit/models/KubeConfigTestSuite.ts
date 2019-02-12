@@ -1,8 +1,6 @@
 import { suite, test } from 'mocha-typescript';
 import * as assert from 'assert';
-import { resolve } from 'path';
-import { RESTRequestProcessor, IPatchBodyItem, KubeConfig } from '../../../src';
-import { BaseTestSuite } from '../BaseTestSuite';
+import {KubeConfig } from '../../../src';
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -20,12 +18,13 @@ export class KubeConfigTestSuite {
         process.env.KUBECONFIG = this.envKubeConfigValue;
     }
 
+    @test()
     async loadFromHome(): Promise<void> {
         const expected = new KubeConfig();
         await expected.load();        
 
         // cleanup env var
-        process.env.KUBECONFIG = undefined;
+        delete process.env.KUBECONFIG;
 
         const actual = new KubeConfig();
         await actual.load();

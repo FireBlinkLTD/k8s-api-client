@@ -6,7 +6,7 @@ import { IPatchBodyItem } from '../interfaces';
 import * as Debug from 'debug';
 const debug = Debug('@fireblink/k8s-api-client');
 
-export class RESTRequestProcessor extends BaseRequestProcessor {
+export class APIRequestProcessor extends BaseRequestProcessor {
     /**
      * Make request
      * @param options

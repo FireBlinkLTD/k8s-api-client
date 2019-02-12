@@ -1,7 +1,7 @@
 import { suite, test } from 'mocha-typescript';
 import * as assert from 'assert';
 import { resolve } from 'path';
-import { RESTRequestProcessor, IPatchBodyItem } from '../../../src';
+import { APIRequestProcessor, IPatchBodyItem } from '../../../src';
 import { BaseTestSuite } from '../BaseTestSuite';
 
 const chai = require('chai');
@@ -9,7 +9,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 @suite()
-class RESTRequestProcessorTestSuite extends BaseTestSuite {
+class APIRequestProcessorTestSuite extends BaseTestSuite {
     async after(): Promise<void> {
         await this.exec('kubectl delete --all get');    
     }
@@ -26,7 +26,7 @@ class RESTRequestProcessorTestSuite extends BaseTestSuite {
 
     @test()
     async getOne(): Promise<void> {
-        const processor = new RESTRequestProcessor();
+        const processor = new APIRequestProcessor();
 
         const resourcePath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get.yml');
         const resource = await this.readYamlFile(resourcePath);
@@ -45,7 +45,7 @@ class RESTRequestProcessorTestSuite extends BaseTestSuite {
 
     @test()
     async delete(): Promise<void> {
-        const processor = new RESTRequestProcessor();
+        const processor = new APIRequestProcessor();
 
         const resourcePath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get.yml');
         const resource = await this.readYamlFile(resourcePath);
@@ -64,7 +64,7 @@ class RESTRequestProcessorTestSuite extends BaseTestSuite {
 
     @test()
     async post(): Promise<void> {
-        const processor = new RESTRequestProcessor();
+        const processor = new APIRequestProcessor();
 
         const resourcePath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get.yml');
         const resource = await this.readYamlFile(resourcePath);
@@ -84,7 +84,7 @@ class RESTRequestProcessorTestSuite extends BaseTestSuite {
 
     @test()
     async put(): Promise<void> {
-        const processor = new RESTRequestProcessor();
+        const processor = new APIRequestProcessor();
 
         const resourcePath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get.yml');
         await this.applyResource(resourcePath);
@@ -110,7 +110,7 @@ class RESTRequestProcessorTestSuite extends BaseTestSuite {
 
     @test()
     async patch(): Promise<void> {
-        const processor = new RESTRequestProcessor();
+        const processor = new APIRequestProcessor();
 
         const resourcePath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get.yml');
         const resource = await this.readYamlFile(resourcePath);
@@ -140,17 +140,14 @@ class RESTRequestProcessorTestSuite extends BaseTestSuite {
 
     @test()
     async merge(): Promise<void> {
-        const processor = new RESTRequestProcessor();
+        const processor = new APIRequestProcessor();
 
         const resourcePath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get.yml');
         const resource = await this.readYamlFile(resourcePath);
         await this.applyResource(resourcePath);
 
         let result = await this.getResource('gets', resource.metadata.name);
-        const resourceUpdate = {
-            metadata: {
-                resourceVersion: result.metadata.resourceVersion
-            },
+        const resourceUpdate = {            
             spec: {
                 newItem: 'yes'
             }
@@ -171,7 +168,7 @@ class RESTRequestProcessorTestSuite extends BaseTestSuite {
 
     @test()
     async getAll(): Promise<void> {
-        const processor = new RESTRequestProcessor();
+        const processor = new APIRequestProcessor();
 
         const resource1Path = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get.yml');
         const resource1uPath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get-update.yml');
