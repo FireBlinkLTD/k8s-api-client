@@ -40,6 +40,9 @@ exit_code=$?
 if [[ $KIND_KEEP_GENERATED_CLUSTER == 0 ]]; then
     echo "-> removing kind cluster..."
     kind delete cluster
+
+    echo "-> building ./coverage/coverage.lcov report file..."
+    ./node_modules/.bin/nyc report --reporter=text-lcov > ./coverage/coverage.lcov
 fi
 
 exit $exit_code

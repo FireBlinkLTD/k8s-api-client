@@ -56,17 +56,10 @@ jobs:
       - run: 
           name: run tests and generate coverage report
           command: |
-            yarn docker:test
-            
-            # generate coverage report
-            ./node_modules/.bin/nyc report --reporter=text-lcov > ./coverage.lcov
+            yarn docker:test                                  
       
       # send test coverage
-      - run: bash <(curl -s https://codecov.io/bash) -f ./coverage.lcov      
-
-      # store artifacts
-      - store_artifacts:
-          path: ./coverage.lcov
+      - run: bash <(curl -s https://codecov.io/bash) -f ./coverage/coverage.lcov      
 
       # store artifacts
       - store_artifacts:
