@@ -228,6 +228,19 @@
   dependencies:
     find-up "^2.1.0"
 
+"@fireblink/k8s-api-client@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@fireblink/k8s-api-client/-/k8s-api-client-1.0.0.tgz#3f427db569a73f12805a091a7b2519da0c3526b4"
+  integrity sha512-PC6jZo1ZU3UYI41tuVGZ4+ol71Jr/7ZzjsivFgfIPSTsfswMRc3hOBeSxjWephnKvpI2+w+ajugrEiDNYS7ngQ==
+  dependencies:
+    "@types/debug" "4.1.0"
+    "@types/js-yaml" "3.12.0"
+    "@types/request" "2.48.1"
+    debug "4.1.1"
+    js-yaml "3.12.1"
+    json-streaming-reader "1.0.2"
+    request "2.88.0"
+
 "@iamstarkov/listr-update-renderer@0.4.1":
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/@iamstarkov/listr-update-renderer/-/listr-update-renderer-0.4.1.tgz#d7c48092a2dcf90fd672b6c8b458649cb350c77e"

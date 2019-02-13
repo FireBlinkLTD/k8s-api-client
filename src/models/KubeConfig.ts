@@ -83,7 +83,7 @@ export class KubeConfig {
                 'certificate-authority': KubeConfig.SA_CA_PATH,
             },
         };
-        debug(`cluster: ${JSON.stringify(this.user)}`);
+        debug(`cluster: ${JSON.stringify(this.cluster)}`);
     }
 
     /**
