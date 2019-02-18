@@ -4,6 +4,7 @@ import { JsonStreamReader } from 'json-streaming-reader';
 import { BaseRequestProcessor } from './BaseRequestProcessor';
 
 import * as Debug from 'debug';
+import { RequestError } from '../models';
 const debug = Debug('@fireblink/k8s-api-client');
 
 export type WatchHandler = (obj: any) => Promise<void>;
@@ -117,7 +118,7 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
                         this.aborted = true;
                         handlers.gone().then(() => res(), rej);
                     } else {
-                        rej(err);
+                        rej(new RequestError(err.message, response));
                     }
                 });
             });

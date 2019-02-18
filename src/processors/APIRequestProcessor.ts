@@ -4,6 +4,7 @@ import { BaseRequestProcessor } from './BaseRequestProcessor';
 import { IPatchBodyItem } from '../interfaces';
 
 import * as Debug from 'debug';
+import { RequestError } from '../models';
 const debug = Debug('@fireblink/k8s-api-client');
 
 export class APIRequestProcessor extends BaseRequestProcessor {
@@ -31,7 +32,7 @@ export class APIRequestProcessor extends BaseRequestProcessor {
         return new Promise<any>((resolve, reject) => {
             request(options, (error, response, body) => {
                 if (debug.enabled) {
-                    debug(`Response. Status code: ${response.statusCode} Body: ${JSON.stringify(body)}`);
+                    debug(`Response received. Status code: ${response.statusCode} Body: ${JSON.stringify(body)}`);
                 }
 
                 if (error) {
@@ -41,10 +42,10 @@ export class APIRequestProcessor extends BaseRequestProcessor {
                         resolve(body);
                     } else {
                         reject(
-                            new Error(
-                                `Response failed. ${response.statusCode}: ${
-                                    response.statusMessage
-                                }. Body: ${JSON.stringify(body)}`,
+                            new RequestError(
+                                `Request failed. ${response.statusCode}: ${response.statusMessage}`,
+                                response,
+                                body,
                             ),
                         );
                     }
