@@ -5,13 +5,13 @@ import { BaseRequestProcessor } from './BaseRequestProcessor';
 
 import * as Debug from 'debug';
 import { RequestError } from '../models';
+import { rejects } from 'assert';
 const debug = Debug('@fireblink/k8s-api-client');
 
 export type WatchHandler = (obj: any) => Promise<void>;
 export type GoneHandler = () => Promise<void>;
 
 export interface IWatchHandlers {
-    gone?: GoneHandler;
     added?: WatchHandler;
     modified?: WatchHandler;
     deleted?: WatchHandler;
@@ -102,7 +102,13 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
                     }
                 });
 
-                jsonStream.on('finish', res);
+                jsonStream.on('finish', () => {
+                    if (response && response.statusCode >= 400) {
+                        rej(new RequestError('Request failed', response));
+                    }
+
+                    res();
+                });
 
                 stream.on('request', req => {
                     this.activeRequest = req;
@@ -111,15 +117,6 @@ export class WatchRequestProcessor extends BaseRequestProcessor {
                 let response: request.Response;
                 stream.on('response', resp => {
                     response = resp;
-                });
-
-                stream.on('error', err => {
-                    if (handlers.gone && (response && response.statusCode && response.statusCode === 410)) {
-                        this.aborted = true;
-                        handlers.gone().then(() => res(), rej);
-                    } else {
-                        rej(new RequestError(err.message, response));
-                    }
                 });
             });
         } finally {

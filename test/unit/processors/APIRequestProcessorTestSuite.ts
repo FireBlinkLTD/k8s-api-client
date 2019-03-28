@@ -11,16 +11,16 @@ chai.use(chaiAsPromised);
 @suite()
 class APIRequestProcessorTestSuite extends BaseTestSuite {
     async after(): Promise<void> {
-        await this.exec('kubectl delete --all get');    
+        await this.exec('kubectl delete --all get');
     }
 
     private async applyResource(path: string): Promise<void> {
-        await this.exec(`kubectl apply -f "${path}"`);        
+        await this.exec(`kubectl apply -f "${path}"`);
     }
 
     private async getResource(kind: string, name: string): Promise<any> {
-        const {stdout} = await this.exec(`kubectl get ${kind} ${name} -o json`);
-        
+        const { stdout } = await this.exec(`kubectl get ${kind} ${name} -o json`);
+
         return JSON.parse(stdout);
     }
 
@@ -32,10 +32,10 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
         const resource = await this.readYamlFile(resourcePath);
 
         await this.applyResource(resourcePath);
-        
+
         const namespace = 'default';
         const result = await processor.get(
-            `/apis/${resource.apiVersion}/namespaces/${namespace}/gets/${resource.metadata.name}`        
+            `/apis/${resource.apiVersion}/namespaces/${namespace}/gets/${resource.metadata.name}`,
         );
 
         assert.strictEqual(result.apiVersion, resource.apiVersion);
@@ -53,13 +53,9 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
         await this.applyResource(resourcePath);
 
         const namespace = 'default';
-        await processor.delete(
-            `/apis/${resource.apiVersion}/namespaces/${namespace}/gets/${resource.metadata.name}`        
-        );
+        await processor.delete(`/apis/${resource.apiVersion}/namespaces/${namespace}/gets/${resource.metadata.name}`);
 
-        await chai.expect(
-            this.getResource('gets', resource.metadata.name)
-        ).to.rejectedWith('Command failed');        
+        await chai.expect(this.getResource('gets', resource.metadata.name)).to.rejectedWith('Command failed');
     }
 
     @test()
@@ -70,10 +66,7 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
         const resource = await this.readYamlFile(resourcePath);
 
         const namespace = 'default';
-        await processor.post(
-            `/apis/${resource.apiVersion}/namespaces/${namespace}/gets`,
-            resource
-        );
+        await processor.post(`/apis/${resource.apiVersion}/namespaces/${namespace}/gets`, resource);
 
         const result = await this.getResource('gets', resource.metadata.name);
 
@@ -98,7 +91,7 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
         const namespace = 'default';
         await processor.put(
             `/apis/${resourceUpdate.apiVersion}/namespaces/${namespace}/gets/${resourceUpdate.metadata.name}`,
-            resourceUpdate
+            resourceUpdate,
         );
 
         result = await this.getResource('gets', resourceUpdate.metadata.name);
@@ -117,25 +110,30 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
         await this.applyResource(resourcePath);
 
         let result = await this.getResource('gets', resource.metadata.name);
-        const resourceUpdate: IPatchBodyItem[] = [{
-            op: 'add',
-            path: '/spec/newItem',
-            value: 'yes'
-        }];        
-        
+        const resourceUpdate: IPatchBodyItem[] = [
+            {
+                op: 'add',
+                path: '/spec/newItem',
+                value: 'yes',
+            },
+        ];
+
         const namespace = 'default';
         await processor.patch(
             `/apis/${resource.apiVersion}/namespaces/${namespace}/gets/${resource.metadata.name}`,
-            resourceUpdate
+            resourceUpdate,
         );
 
         result = await this.getResource('gets', resource.metadata.name);
 
         assert.strictEqual(result.apiVersion, resource.apiVersion);
         assert.strictEqual(result.kind, resource.kind);
-        assert.deepStrictEqual(result.spec, Object.assign({}, resource.spec, {
-            newItem: 'yes'
-        }));
+        assert.deepStrictEqual(
+            result.spec,
+            Object.assign({}, resource.spec, {
+                newItem: 'yes',
+            }),
+        );
     }
 
     @test()
@@ -147,16 +145,16 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
         await this.applyResource(resourcePath);
 
         let result = await this.getResource('gets', resource.metadata.name);
-        const resourceUpdate = {            
+        const resourceUpdate = {
             spec: {
-                newItem: 'yes'
-            }
+                newItem: 'yes',
+            },
         };
-        
+
         const namespace = 'default';
         await processor.merge(
             `/apis/${resource.apiVersion}/namespaces/${namespace}/gets/${resource.metadata.name}`,
-            resourceUpdate
+            resourceUpdate,
         );
 
         result = await this.getResource('gets', resource.metadata.name);
@@ -167,7 +165,7 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
     }
 
     @test()
-    async getAll(): Promise<void> {
+    async getAllWithMultiplePageCalls(): Promise<void> {
         const processor = new APIRequestProcessor();
 
         const resource1Path = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get.yml');
@@ -180,25 +178,64 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
         await this.applyResource(resource1Path);
         await this.applyResource(resource1uPath);
         await this.applyResource(resource2Path);
-        
+
         const namespace = 'default';
-        const result = await processor.getAll(
-            `/apis/${resource1u.apiVersion}/namespaces/${namespace}/gets`,
-            {
-                limit: 1
-            }  
-        );
+        const result = await processor.getAll(`/apis/${resource1u.apiVersion}/namespaces/${namespace}/gets`, {
+            limit: 1,
+        });
 
         assert(result.resourceVersion);
         assert.strictEqual(result.items.length, 2);
-        
+
         for (const resource of [resource1u, resource2]) {
             const actual = result.items.find(i => i.metadata.name === resource.metadata.name);
-            
+
             assert(actual);
             assert.strictEqual(actual.apiVersion, resource.apiVersion);
             assert.strictEqual(actual.kind, resource.kind);
             assert.deepStrictEqual(actual.spec, resource.spec);
         }
+    }
+
+    @test()
+    async getAllWithSinglePageCall(): Promise<void> {
+        const processor = new APIRequestProcessor();
+
+        const resource1Path = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get.yml');
+        const resource1uPath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get-update.yml');
+        const resource2Path = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-get2.yml');
+
+        const resource1u = await this.readYamlFile(resource1uPath);
+        const resource2 = await this.readYamlFile(resource2Path);
+
+        await this.applyResource(resource1Path);
+        await this.applyResource(resource1uPath);
+        await this.applyResource(resource2Path);
+
+        const namespace = 'default';
+        const result = await processor.getAll(`/apis/${resource1u.apiVersion}/namespaces/${namespace}/gets`);
+
+        assert(result.resourceVersion);
+        assert.strictEqual(result.items.length, 2);
+
+        for (const resource of [resource1u, resource2]) {
+            const actual = result.items.find(i => i.metadata.name === resource.metadata.name);
+
+            assert(actual);
+            assert.strictEqual(actual.apiVersion, resource.apiVersion);
+            assert.strictEqual(actual.kind, resource.kind);
+            assert.deepStrictEqual(actual.spec, resource.spec);
+        }
+    }
+
+    @test()
+    async failOnWrongGet(): Promise<void> {
+        const processor = new APIRequestProcessor();
+
+        const namespace = 'default';
+
+        await chai
+            .expect(processor.get(`/apis/fireblink/v9999/namespaces/${namespace}/wrong`))
+            .to.be.rejectedWith('Request failed. 404: Not Found');
     }
 }

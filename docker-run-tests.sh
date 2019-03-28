@@ -34,6 +34,7 @@ kubectl apply -f test/assets/k8s/resourcedefinition-get.yml
 kubectl apply -f test/assets/k8s/resourcedefinition-watch.yml
 
 echo "-> running tests..."
+export DEBUG='@fireblink/k8s-api-client'
 yarn test
 exit_code=$?
 

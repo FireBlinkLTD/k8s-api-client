@@ -153,11 +153,6 @@ const processor = new WatchRequestProcessor();
 await processor.watch(
   '/apis/fireblink.com/v1/namespaces/default/customresources',
   {
-    // called when API call returns 410 code - GONE
-    // when such happens you generally need to refetch the list of records and start again
-    // with the resourceVersion returned (see `getAll` method above)
-    gone: async () => {},
-
     // called when object is added
     added: async (obj: any) => {},
 
@@ -170,3 +165,5 @@ await processor.watch(
   // optionally provide resourceVersion as a third parameter
 );
 ```
+
+_Note:_ Request may fail with 410 HTTP status code (GONE). When this happens you generally need to refetch the list of records and start watching resource again with a fresh resourceVersion (see `getAll` method above).
