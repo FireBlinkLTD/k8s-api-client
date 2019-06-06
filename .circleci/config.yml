@@ -1,6 +1,6 @@
 #
 # For local execution:
-# circleci local execute --skip-checkout=false --repo-url="/fake-remote" --volume="/Users/vlad.tkachenko/Workspace/FireBlink/@fireblink/k8s-api-client":"/fake-remote"
+# circleci local execute --skip-checkout=false --repo-url="/fake-remote" --volume="${$(pwd)}":"/fake-remote"
 #
 # Note: you might need to uncomment few lines below (read comments) as local and remote machines are different
 #
@@ -49,14 +49,15 @@ jobs:
           command: |
             curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
 
-            # for local circleci
-            #export NVM_DIR="$HOME/.nvm"
-            #echo 'export NVM_DIR=$HOME/.nvm' >> $BASH_ENV
-            #echo 'source $NVM_DIR/nvm.sh' >> $BASH_ENV
-            
-            export NVM_DIR=/opt/circleci/.nvm
-            echo 'export NVM_DIR=/opt/circleci/.nvm' >> $BASH_ENV
-            echo 'source $NVM_DIR/nvm.sh' >> $BASH_ENV
+            if [[ -z "$CIRCLE_BUILD_NUM" ]]; then
+              export NVM_DIR="$HOME/.nvm"
+              echo 'export NVM_DIR=$HOME/.nvm' >> $BASH_ENV
+              echo 'source $NVM_DIR/nvm.sh' >> $BASH_ENV
+            else
+              export NVM_DIR=/opt/circleci/.nvm
+              echo 'export NVM_DIR=/opt/circleci/.nvm' >> $BASH_ENV
+              echo 'source $NVM_DIR/nvm.sh' >> $BASH_ENV
+            fi
       - run:  
           name: Install Node.js
           command: |           
