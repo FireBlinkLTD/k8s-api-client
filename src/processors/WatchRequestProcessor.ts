@@ -5,11 +5,9 @@ import { BaseRequestProcessor } from './BaseRequestProcessor';
 
 import * as Debug from 'debug';
 import { RequestError } from '../models';
-import { rejects } from 'assert';
 const debug = Debug('@fireblink/k8s-api-client');
 
 export type WatchHandler = (obj: any) => Promise<void>;
-export type GoneHandler = () => Promise<void>;
 
 export interface IWatchHandlers {
     added?: WatchHandler;
