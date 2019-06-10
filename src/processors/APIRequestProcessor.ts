@@ -29,7 +29,7 @@ export class APIRequestProcessor extends BaseRequestProcessor {
 
         await this.updateRequestOptions(options);
 
-        return new Promise<any>((resolve, reject) => {
+        return await new Promise<any>((resolve, reject) => {
             request(options, (error, response, body) => {
                 if (debug.enabled) {
                     debug(`Response received. Status code: ${response.statusCode} Body: ${JSON.stringify(body)}`);
@@ -43,7 +43,9 @@ export class APIRequestProcessor extends BaseRequestProcessor {
                     } else {
                         reject(
                             new RequestError(
-                                `Request failed. ${response.statusCode}: ${response.statusMessage}`,
+                                `${options.method} ${options.url} request failed. ${response.statusCode}: ${
+                                    response.statusMessage
+                                }`,
                                 response,
                                 body,
                             ),
