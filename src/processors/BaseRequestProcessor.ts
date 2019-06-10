@@ -21,7 +21,7 @@ export abstract class BaseRequestProcessor {
     /**
      * Load kube config
      */
-    protected async loadConfig(): Promise<KubeConfig> {
+    public async loadConfig(): Promise<KubeConfig> {
         if (this.kubeConfig) {
             debug(`request processor: returning cached config`);
 

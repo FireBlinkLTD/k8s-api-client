@@ -231,11 +231,16 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
     @test()
     async failOnWrongGet(): Promise<void> {
         const processor = new APIRequestProcessor();
+        const config = await processor.loadConfig();
 
         const namespace = 'default';
 
         await chai
             .expect(processor.get(`/apis/fireblink/v9999/namespaces/${namespace}/wrong`))
-            .to.be.rejectedWith('Request failed. 404: Not Found');
+            .to.be.rejectedWith(
+                `GET ${
+                    config.cluster.cluster.server
+                }/apis/fireblink/v9999/namespaces/default/wrong request failed. 404: Not Found`,
+            );
     }
 }
