@@ -1,6 +1,6 @@
 {
   "name": "@fireblink/k8s-api-client",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -44,6 +44,7 @@
     "prettier": "1.17.1",
     "rimraf": "2.6.3",
     "source-map-support": "0.5.12",
+    "ts-node": "8.2.0",
     "tslint": "5.17.0",
     "tslint-config-prettier": "1.18.0",
     "typescript": "3.5.1",
@@ -57,6 +58,28 @@
     "client",
     "watch"
   ],
+  "nyc": {
+    "cache": false,
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "src/**/index.ts",
+      "src/interfaces/*.ts",
+      "**/*.d.ts",
+      "coverage/**"
+    ],
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 0,
+    "statements": 0,
+    "functions": 0,
+    "branches": 0,
+    "include": [
+      "src",
+      "dist/src"
+    ]
+  },
   "contributors": [
     {
       "name": "Vladyslav Tkachenko",

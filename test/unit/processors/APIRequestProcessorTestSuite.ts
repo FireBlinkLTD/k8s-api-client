@@ -233,14 +233,25 @@ class APIRequestProcessorTestSuite extends BaseTestSuite {
         const processor = new APIRequestProcessor();
         const config = await processor.loadConfig();
 
-        const namespace = 'default';
-
         await chai
-            .expect(processor.get(`/apis/fireblink/v9999/namespaces/${namespace}/wrong`))
+            .expect(processor.get(`/api/v1/namespaces/default/secrets/missing`))
             .to.be.rejectedWith(
                 `GET ${
                     config.cluster.cluster.server
-                }/apis/fireblink/v9999/namespaces/default/wrong request failed. 404: Not Found`,
+                }/api/v1/namespaces/default/secrets/missing request failed. 404: Not Found`,
             );
+    }
+
+    @test()
+    async failOnMissingConnection(): Promise<void> {
+        const processor = new APIRequestProcessor();
+        const config = await processor.loadConfig();
+        const newConfig = JSON.parse(JSON.stringify(config));
+        newConfig.cluster.cluster.server = 'http://127.0.0.1:0';
+        processor.updateConfig(newConfig);
+
+        await chai
+            .expect(processor.get(`/api/v1/namespaces/default/secrets/missing`))
+            .to.be.rejectedWith('connect ECONNREFUSED 127.0.0.1');
     }
 }

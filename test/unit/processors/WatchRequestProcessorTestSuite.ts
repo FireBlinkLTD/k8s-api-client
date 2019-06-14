@@ -1,7 +1,7 @@
 import { suite, test } from 'mocha-typescript';
 import * as assert from 'assert';
 import { resolve } from 'path';
-import { WatchRequestProcessor } from '../../../src';
+import { WatchRequestProcessor, IWatchRecord, APIRequestProcessor, RequestError } from '../../../src';
 import { BaseTestSuite } from '../BaseTestSuite';
 
 const chai = require('chai');
@@ -80,11 +80,15 @@ class WatchRequestProcessorTestSuite extends BaseTestSuite {
 
         await this.applyResource(resourcePath);
 
-        await chai
-            .expect(processor.watch(`/apis/${resource.apiVersion}/namespaces/default/watchs`, {}, '-1'))
-            .to.be.rejectedWith(
-                'resourceVersion: Invalid value: "-1": strconv.ParseUint: parsing "-1": invalid syntax',
-            );
+        let error!: RequestError;
+        try {
+            await processor.watch(`/apis/${resource.apiVersion}/namespaces/default/watchs`, {}, '-1');
+        } catch (e) {
+            error = e;
+        }
+
+        assert(error);
+        assert.strictEqual(error.message, 'resourceVersion: Invalid value: "-1": strconv.ParseUint: parsing "-1": invalid syntax');        
     }
 
     @test()
@@ -102,11 +106,14 @@ class WatchRequestProcessorTestSuite extends BaseTestSuite {
     }
 
     @test()
-    async abornOnFailure(): Promise<void> {
+    async abortOnFirstFailure(): Promise<void> {
         const processor = new WatchRequestProcessor();
 
         const resourcePath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-watch.yml');
         const resource = await this.readYamlFile(resourcePath);
+
+        const api = new APIRequestProcessor();
+        const { resourceVersion } = await api.getAll(`/apis/${resource.apiVersion}/namespaces/default/watchs`);
 
         await this.applyResource(resourcePath);
 
@@ -114,10 +121,52 @@ class WatchRequestProcessorTestSuite extends BaseTestSuite {
             .expect(
                 processor.watch(`/apis/${resource.apiVersion}/namespaces/default/watchs`, {
                     added: async (): Promise<void> => {
-                        throw new Error('test');
+                        return Promise.reject(new Error('test'));
                     },
-                }),
+                }, resourceVersion),
             )
             .to.be.rejectedWith('test');
+    }
+
+    @test()
+    async abortOnSecondFailure(): Promise<void> {
+        const processor = new WatchRequestProcessor();
+
+        const resourcePath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-watch.yml');
+        const resourceUpdatePath = resolve(process.cwd(), 'test', 'assets', 'k8s', 'resource-watch-update.yml');
+        const resource = await this.readYamlFile(resourcePath);
+
+        const api = new APIRequestProcessor();
+        const { resourceVersion } = await api.getAll(`/apis/${resource.apiVersion}/namespaces/default/watchs`);
+
+        await this.applyResource(resourcePath);
+        await this.applyResource(resourceUpdatePath);
+
+        await chai
+            .expect(
+                processor.watch(`/apis/${resource.apiVersion}/namespaces/default/watchs`, {
+                    added: async (): Promise<void> => {
+                        console.log('-> added');
+                    },
+
+                    modified: async(): Promise<void> => {
+                        return Promise.reject(new Error('test'));
+                    }
+                }, resourceVersion),
+            )
+            .to.be.rejectedWith('test');
+    }
+
+    @test()
+    async failOnMissingConnection(): Promise<void> {
+        const processor = new WatchRequestProcessor();
+        const config = await processor.loadConfig();
+        const newConfig = JSON.parse(JSON.stringify(config));
+        newConfig.cluster.cluster.server = 'http://127.0.0.1:0';
+        processor.updateConfig(newConfig);
+
+        await chai
+            .expect(processor.watch(`/api/v1/namespaces/default/secrets/missing`, {}))
+            .to.be.rejectedWith('connect ECONNREFUSED 127.0.0.1');
     }
 }

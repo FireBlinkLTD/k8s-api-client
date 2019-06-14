@@ -31,13 +31,13 @@ export class APIRequestProcessor extends BaseRequestProcessor {
 
         return await new Promise<any>((resolve, reject) => {
             request(options, (error, response, body) => {
-                if (debug.enabled) {
-                    debug(`Response received. Status code: ${response.statusCode} Body: ${JSON.stringify(body)}`);
-                }
-
                 if (error) {
                     reject(error);
                 } else {
+                    if (debug.enabled) {
+                        debug(`Response received. Status code: ${response.statusCode} Body: ${JSON.stringify(body)}`);
+                    }
+
                     if (response.statusCode >= 200 && response.statusCode <= 299) {
                         resolve(body);
                     } else {

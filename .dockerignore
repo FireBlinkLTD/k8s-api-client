@@ -3,6 +3,7 @@
 !./src
 !./test
 !./index.ts
+!./.mocharc.yml
 
 # module configuration files
 !./package.json
