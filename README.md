@@ -1,7 +1,7 @@
 # K8s API Client
 
 [![CircleCI](https://circleci.com/gh/FireBlinkLTD/k8s-api-client.svg?style=svg)](https://circleci.com/gh/FireBlinkLTD/k8s-api-client)
-[![codecov](https://codecov.io/gh/FireBlinkLTD/k8s-api-client/branch/master/graph/badge.svg)](https://codecov.io/gh/FireBlinkLTD/k8s-api-client)
+[![codecov](https://codecov.io/gh/FireBlinkLTD/k8s-api-client/branch/master/graph/badge.svg)](https://codecov.io/gh/FireBlinkLTD/k8s-api-client) [![Greenkeeper badge](https://badges.greenkeeper.io/FireBlinkLTD/k8s-api-client.svg)](https://greenkeeper.io/)
 
 Yet another K8s client that is _NOT_ generated from OpenAPI spec and doesn't provide resource specific methods.
 
