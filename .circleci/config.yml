@@ -125,7 +125,8 @@ workflows:
               # as execution takes really long time we should not enable it for all branches and PRs
               only: 
                 - master
-                - develop     
+                - develop
+                - /greenkeeper/.*/
 
       - build_only:           
           filters:
