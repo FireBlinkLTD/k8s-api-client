@@ -28,7 +28,7 @@
     "@commitlint/cli": "8.3.5",
     "@commitlint/config-conventional": "8.3.4",
     "@types/chai": "4.2.11",
-    "@types/node": "13.9.2",
+    "@types/node": "13.9.3",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
     "commitizen": "4.0.3",
