@@ -6,7 +6,7 @@ services:
     network_mode: host
     environment:
       #DEBUG: '@fireblink/k8s-api-client'
-      
+
       # if 1 - kind cluster will not be generated and any existing one will not be removed before running tests
       KIND_USE_EXISTING_CLUSTER: 0
 
@@ -21,7 +21,5 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./coverage:/usr/app/coverage
-      - ./.nyc_output:/usr/app/.nyc_output
       - ./mochawesome-report:/usr/app/mochawesome-report
-      
       #- ./.kube:/kubeconfigs
